@@ -541,6 +541,9 @@ def webhook():
 
         return "OK", 200
 
+    # ✅ ADD THIS FINAL RETURN STATEMENT as a fallback
+    return "Webhook endpoint reached.", 200
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
