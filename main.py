@@ -312,11 +312,11 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
                 send_ig_message(recipient_id, styled_reply)
                 current_user.location_false_time = 0
                 # Tell user he/she can change tone
-                send_ig_message(recipient_id, f"📢如需修改語氣，請點選【{get_reply("WANT_TO_CHANGE_TONE")}】！😊")
+                send_ig_message(recipient_id, f"📢如需修改語氣，請點選【{get_reply('WANT_TO_CHANGE_TONE')}】！😊")
 
                 # Teach user how to end dialog
-                send_ig_quick_reply(recipient_id, f"⚠️想將對話結束，可點擊【{get_reply("WANT_TO_END_DIALOG")}】",
-                                    ["WANT_TO_CHANGE_TONE", "WANT_TO_END_DIALOG"])
+                send_ig_quick_reply(recipient_id, f"⚠️想將對話結束，可點擊【{get_reply('WANT_TO_END_DIALOG')}】",
+                                    ['WANT_TO_CHANGE_TONE', 'WANT_TO_END_DIALOG'])
 
             # Store is not correct -> fetch other information
             else:
