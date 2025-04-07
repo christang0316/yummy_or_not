@@ -17,7 +17,7 @@
 ## 🎓 開發工具與技術
 
 - **Google Generative AI SDK**: Gemini Pro 1.5 / 2.0 解析與生成回覆
-- **Meta for Developer (Instagram API): 連結機器人帳號並讀取使用者訊息
+- **Meta for Developer (Instagram API)**: 連結機器人帳號並讀取使用者訊息
 - **BeautifulSoup**: 爬取 PTT 網路評論
 - **JSON 資料檔**: 存儲用戶使用情形
 - **Flask**: 後端開發，Webhook API 主程式
