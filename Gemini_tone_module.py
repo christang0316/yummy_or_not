@@ -1,4 +1,5 @@
 import json
+from constants import GEMINI_API_KEY
 import google.generativeai as genai
 
 from find_comments_on_web import find_comments_of_the_place
@@ -14,8 +15,8 @@ def load_prompt_from_txt(valid_tone) -> str:
 
 
 # Initialize Gemini
-genai.configure(api_key="AIzaSyAhW-u4waK5t6CXAjF54a-UVMVonull3aw")
-model = genai.GenerativeModel("gemini-1.5-pro")
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("ggemini-2.5-flash")
 chat = model.start_chat()
 
 # Load reply texts from json file

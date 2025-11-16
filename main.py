@@ -38,7 +38,7 @@ def get_reply(msg_dict_key: str) -> str:
 
 # Initialize Gemini for location analysis
 genai.configure(api_key=GEMINI_API_KEY)
-model_location = genai.GenerativeModel("gemini-2.0-flash")
+model_location = genai.GenerativeModel("gemini-2.5-flash")
 
 
 # ---------------------------------
