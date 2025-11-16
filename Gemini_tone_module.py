@@ -16,7 +16,7 @@ def load_prompt_from_txt(valid_tone) -> str:
 
 # Initialize Gemini
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("ggemini-2.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 chat = model.start_chat()
 
 # Load reply texts from json file
