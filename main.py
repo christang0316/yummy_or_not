@@ -207,7 +207,7 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
         store_name = match.group(1)  # get store name
         return store_name, reply + "\n\n請問地點是否為你想找的呢？"
     else:
-        return "NO", "抱歉，我找不到明確的店家資訊😢如果你願意，我可以再試著分析一次～"
+        return "NO", "抱歉，我找不到明確的店家資訊😢如果你願意，我可以再試著分析一次"
 
 
 # User send a plain text
