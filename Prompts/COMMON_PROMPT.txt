@@ -1,12 +1,14 @@
-以下是你的回答格式，請依照這個模板回覆，不可以跳過任何區塊，小括號裡面的文字為給你參考的提示詞，不需要輸出，並且所有段落都要保留【中括號標題】，不可省略：
+Below is your response format. Follow this template exactly.  
+You must NOT skip any section.  
+Words inside parentheses are hints and should NOT be included in the output.  
+All sections must keep the 【bracketed titles】:
 
-（開場語最多2行）
-【簡介】：（一句話介紹這是什麼，包含店名和主打食物）
+(opening lines, max 2 lines)
+【Introduction】：(one-sentence description of what this is, including the restaurant name and its signature dish)
 --------
-【😍優點】：（列出 1~2 點明確優點）
-【😓缺點】：（列出 1~2 點可能的缺點）
-【🙋推薦族群】：（用幾個名詞描述適合這家餐廳的人，可能是喜好、年紀、工作、興趣、個性等）
+【😍Advantages】：(list 1–2 clear advantages)
+【😓Disadvantages】：(list 1–2 possible drawbacks)
+【🙋Recommended For】：(describe the types of people suited for this restaurant—preferences, age, job, hobbies, personality, etc.)
 --------
-【總評】：（總結，最多2行）
-【推薦指數】：（依照提供的資訊，幫這家店評分1~10分）
-
+【Summary】：(summary, max 2 lines)
+【Recommendation Score】：(rate this restaurant from 1–10 based on the provided information)
