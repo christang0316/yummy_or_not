@@ -1,54 +1,54 @@
 # 🌟 Yummy or Not
 
-一個使用 Gemini AI 搭配 IG Reels 分析的食讞幫手，將網路評論、地點、情緒評算與語氣展現組合，自動產生「有語氣、有笑點、有感觸」的簡介。
+A food-review assistant that uses Gemini AI together with IG Reels analysis. It combines online reviews, locations, sentiment evaluation, and tone generation to automatically create introductions that are “expressive, humorous, and emotionally engaging.”
 
 ---
 
-## 🚀 項目特色
+## 🚀 Project Features
 
-- 使用 Gemini Pro (1.5 & 2.0) 及時摘要 IG Reels 内容與相關網路評價
-- 使用現在流行的社交軟體 Instagram 作為主要使用平台，提升民眾接觸的可能性
-- 自動抓取 PTT 食物版的網路評論
-- 支援不同語氣：普通 / 迷因風格 / 情緒化 / 簡短
-- 擴充簡介設計：😍 優點、😓 缺點、👋 推薦群組
-
----
-
-## 🎓 開發工具與技術
-
-- **Google Generative AI SDK**: Gemini Pro 1.5 / 2.0 解析與生成回覆
-- **Meta for Developer (Instagram API)**: 連結機器人帳號並讀取使用者訊息
-- **BeautifulSoup**: 爬取 PTT 網路評論
-- **JSON 資料檔**: 存儲用戶使用情形
-- **Flask**: 後端開發，Webhook API 主程式
-- **GitHub**: 多人協作與版本控制
-- **Render**: 部屬程式
+- Uses Gemini Pro (1.5 & 2.0) to instantly summarize IG Reels content and related online reviews
+- Uses Instagram, one of today’s most popular social platforms, as the main interface to increase user reach
+- Automatically retrieves food-related reviews from PTT Food Board
+- Supports multiple tones: Normal / Meme-style / Emotional / Short
+- Expanded introduction features: 😍 Pros, 😓 Cons, 👋 Recommended for
 
 ---
 
-## 📂 目錄組織
+## 🛠️ Development Tools and Technologies
 
-- `main.py` - 主程式，處理 Webhook 週期上傳 IG reels、快速回覆
-- `Gemini_tone_module.py` - 擺放不同語氣解析與 Gemini 互動模塊
-- `style_module.py` - 簡介形式模板與主 prompt 管理
-- `rating_system.py` - 真實性評分模型
-- `find_comments_on_web.py` - 爬取 PTT 食物版關聯評論
-- `replies.json` - 預先定義好的 quick_reply 及 tone 語言
-- `constants.py` - 密鑰與 token
-- `user_data.json` - 持續性儲存用戶資料
+- Google Generative AI SDK: Gemini Pro 1.5 / 2.0 for parsing and generating responses
+- Meta for Developer (Instagram API): Connects the bot account and reads user messages
+- BeautifulSoup: Crawls PTT online reviews
+- JSON 資料檔: Stores user activity
+- Flask: Backend development, Webhook API main program
+- GitHub: Team collaboration and version control
+- Render: Deploys the application
 
 ---
 
-## ✨ 啟動項目
+## 📂 Directory Structure
 
-1. 確保已安裝 Python >= 3.10
-2. 安裝相關契會
+- `main.py` - Main program that handles Webhook cycles, IG Reels uploads, and quick replies
+- `Gemini_tone_module.py` - Contains different tone parsers and Gemini interaction modules
+- `style_module.py` - Templates for introduction formats and main prompt management
+- `rating_system.py` - Authenticity rating model
+- `find_comments_on_web.py` - Scrapes related comments from the PTT Food Board
+- `replies.json` - Predefined quick_reply and tone language settings
+- `constants.py` - Keys and tokens
+- `user_data.json` - Persistent user data storage
+
+---
+
+## ✨ Start the Project
+
+1. Make sure Python >= 3.10 is installed
+2. Install the required packages
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. 啟動 Flask 服務
+3. Start the Flask service
 
 ```bash
 python main.py
@@ -56,16 +56,16 @@ python main.py
 
 ---
 
-## 🔧 TODO / 未來計畫
+## 🔧 TODO / Future Plan
 
-- [ ] 移轉用戶資料到 PostgreSQL 保持性更高符合 cloud-ready
-- [ ] 整合更多食讞資料源 (e.g. Google 評分)
-- [ ] 支援圖片認識餐點和加工 Gemini Vision API
+- [ ] Migrate user data to PostgreSQL for higher persistence and cloud-ready compatibility
+- [ ] Integrate more food-review data sources (e.g., Google ratings)
+- [ ] Support image recognition of dishes using the Gemini Vision API
 
 ---
 
-## ✉️ 聯絡我們
+## ✉️ Contact
 
-如果你對該項目有興趣或想了解更多，歡迎聯絡我們！
-Email: christang426859@gmail.com 
+If you are interested in this project or want to learn more, feel free to contact us!
+Email: yummy2025laili@gmail.com 
 
