@@ -372,7 +372,8 @@ def is_food_related(reels_content: str) -> bool:
     print("📡 呼叫 Gemini 進行食物分類判斷...")
     response = model_location.generate_content(prompt)
     result = response.text.strip().replace("。", "")
-    return result == "是"
+    return result == "Yes"
+
 
 
 def send_ig_message(recipient_id, reply_text):
