@@ -29,17 +29,18 @@ with open("replies.json", "r", encoding="utf-8") as file:
 def generate_style_response(store_name: str, store_content: str, tone: str):
 
     """
-    根據使用者選擇的語氣 tone，載入對應的 prompt，並向 Gemini 發送請求。
+    Load the corresponding prompt based on the user-selected tone, and send the request to Gemini.
+
     """
     if tone not in VALID_TONES:
-        return f"⚠️ 無法找到 '{tone}' 風格的 prompt，請選擇其他語氣。"
+        return f"⚠️ Unable to find the prompt for '{tone}' style. Please choose another tone."
 
     # load prompt from txt
     tone_prompt = load_prompt_from_txt(tone)
     print(tone_prompt)
 
-    prompt = (tone_prompt + f"\n\n介紹這家餐廳: {store_content}" +
-              f"這是一些網路上找到的評論，你可以綜合參考: {find_comments_of_the_place(store_name)}" +
+    prompt = (tone_prompt + f"\n\nIntroduce this restaurant: {store_content}" +
+              f"Here are some reviews found online that you may refer to: {find_comments_of_the_place(store_name)}" +
               load_prompt_from_txt("COMMON_PROMPT"))
     response = chat.send_message(prompt)
 
