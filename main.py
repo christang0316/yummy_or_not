@@ -184,19 +184,19 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
         return response.text.strip()
 
     prompt = f"""
-        請從以下文字中提取地點或店名。
-        文字：{reels_content}
-        1. 請從內文搜尋店名與地址。
-        2. 若找不到店名，回覆無店名資訊。
-        3. 若找不到地址，請回覆無地址資訊。
-        4. 店名固定唯一。若它是連鎖店，則地址部分列點
-        5. 不要做過多解釋，僅提供店名與地址即可
+        Please extract the location or store name from the following text.
+        Text: {reels_content}
 
-        若店名和地址都沒有找到，請回覆找不到
-        
-        回覆樣式：
-        【店名】：（店名，固定唯一）
-        【地址】：（地址，如果地址大於一，則列點）
+        Search the content for store names and addresses.
+        If no store name is found, reply with “No store name information.”
+        If no address is found, reply with “No address information.”
+        The store name should be unique. If it is a chain store, list multiple addresses as bullet points.
+        Do not over-explain. Only provide the store name and address.
+        If both the store name and the address cannot be found, reply with “Not found.”
+        Response format:
+
+        【Store Name】：(store name, unique)
+        【Address】：(address; if multiple addresses exist, list them as bullet points)
         """
     reply = location_info_from_gemini(prompt)
 
@@ -205,9 +205,9 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
 
     if match:
         store_name = match.group(1)  # get store name
-        return store_name, reply + "\n\n請問地點是否為你想找的呢？"
+        return store_name, reply + "\n\nIs this the location you were looking for?"
     else:
-        return "NO", "抱歉，我找不到明確的店家資訊😢如果你願意，我可以再試著分析一次"
+        return "NO", "Sorry, I couldn’t find any clear store information😢 If you’d like, I can try analyzing it again."
 
 
 # User send a plain text
@@ -215,7 +215,7 @@ def plain_text_flow(recipient_id, message_text) -> str | None:
     print("plain_text_flow")
     print(recipient_id, message_text)
 
-    return "抱歉，我只吃reels和快速回覆按鍵喔！"
+    return "Sorry, I only accept Reels content and quick-reply buttons!"
 
 
 # User respond a quick_reply
@@ -234,7 +234,7 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
             current_user.reels_content = ""
             current_user.store_name = ""
             current_user.is_reels_provided = False
-            return "感謝使用本服務～歡迎隨時再來傳送 Reels 給我喔！🌟"
+            return "Thank you for using this service! Feel free to send me Reels anytime! 🌟"
 
         elif msg_payload == "FORCE_TREAT_AS_FOOD":
             current_user = get_user_data(recipient_id)
@@ -259,7 +259,7 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
             # 如果嘗試次數 >= 2，則直接結束
             if current_user.location_false_time >= 2:
                 current_user.location_false_time = 0  # reset
-                message_to_ig = "抱歉，我還是無法解析出地點😣\n\n請嘗試重新上傳或提供更詳細資訊的 reels，謝謝！"
+                message_to_ig = "Sorry, I still couldn’t extract the location😣\n\nPlease try re-uploading or provide a Reels with clearer details. Thank you!"
                 send_ig_quick_reply(recipient_id, message_to_ig, ["WANT_TO_END_DIALOG"])
                 return None
 
@@ -267,7 +267,7 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
             store_name, message_to_ig = fetch_location_info_from_gemini(current_user.reels_content)
 
             if store_name == "NO":
-                short_message = "抱歉，我找不到明確的店家資訊😢要不要我再試著分析一次？"
+                short_message = "Sorry, I couldn’t find any clear store information😢 Do you want me to try analyzing it again?"
                 send_ig_quick_reply(
                     recipient_id,
                     short_message,
@@ -312,10 +312,10 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
                 send_ig_message(recipient_id, styled_reply)
                 current_user.location_false_time = 0
                 # Tell user he/she can change tone
-                send_ig_message(recipient_id, f"📢如需修改語氣，請點選【{get_reply('WANT_TO_CHANGE_TONE')}】！😊")
+                send_ig_message(recipient_id, f"📢 If you want to adjust the tone, please click 【{get_reply('WANT_TO_CHANGE_TONE')}】! 😊")
 
                 # Teach user how to end dialog
-                send_ig_quick_reply(recipient_id, f"⚠️想將對話結束，可點擊【{get_reply('WANT_TO_END_DIALOG')}】",
+                send_ig_quick_reply(recipient_id, f"⚠️ If you want to end the conversation, you can click 【{get_reply('WANT_TO_END_DIALOG')}】",
                                     ['WANT_TO_CHANGE_TONE', 'WANT_TO_END_DIALOG'])
 
             # Store is not correct -> fetch other information
@@ -325,7 +325,7 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
                     current_user.store_name, message_to_ig = fetch_location_info_from_gemini(current_user.reels_content)
 
                     if current_user.store_name == "NO":
-                        short_message = "抱歉，我找不到明確的店家資訊😢\n\n要不要我再試著分析一次？"
+                        short_message = "Sorry, I couldn’t find any clear store information😢\n\nDo you want me to try analyzing it again?"
                         send_ig_quick_reply(
                             recipient_id,
                             short_message,
@@ -335,7 +335,7 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
                         send_ig_quick_reply(recipient_id, message_to_ig, ["YES", "NO", "WANT_TO_END_DIALOG"])
 
                 else:
-                    message_to_ig = "抱歉，我無法解析出地點，請嘗試重新上傳或提供更詳細資訊的reels，謝謝！"
+                    message_to_ig = "Sorry, I couldn’t extract the location. Please try re-uploading or provide a Reels with more detailed information. Thank you!"
                     current_user.location_false_time = 0
                     send_ig_quick_reply(recipient_id, message_to_ig, ["WANT_TO_END_DIALOG"])
 
@@ -343,29 +343,30 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
 
     # User Not Exist
     else:
-        return "請傳送給我你想查看的 Reels 以開啟對話喔~"
+        return "Please send me the Reels you want to check so we can start the conversation~"
 
 
 # 檢查 reels_content 是否與食物相關
 def is_food_related(reels_content: str) -> bool:
     prompt = f"""
-            你是一位專門偵測「是否是美食相關文案」的偵測分類員。
+            You are a classifier specialized in detecting whether a text is related to food-related content.
 
-            請你判斷以下文字是否與「美食推薦或介紹」沒有關係。
+            Please determine whether the following text is NOT related to “food recommendations or introductions.”
 
-            如果你偵測到這篇文案，有70%以上跟「美食推薦或介紹」沒有關係，才回覆「否」。
+            If you detect that more than 70% of the content is not related to food recommendations or introductions, reply “No.”
 
-            因為今天你是要判斷這段文字是否是一位美食部落客打出來分享介紹的美食。
+            Your task is to judge whether this text was written by a food blogger sharing or introducing food.
 
-            文字內容裡有表示「教你親手做DIY」、「製作教程」相關文字，請回覆「否」。
+            If the content includes phrases about DIY tutorials or how to make something, reply “No.”
 
-            文字內容裡有表示「梗圖」、「娛樂」相關文字，請回覆「否」。
+            If the content includes memes, entertainment, or similar elements, reply “No.”
 
-            文字內容裡有表示「店家名稱」、「電話」、「時間」、「XX店」之類，若你先前的判斷是「否」，請改為「是」。
+            If the content includes store names, phone numbers, business hours, or phrases like “XX shop,”
+            and if your initial judgment was “No,” change your answer to “Yes.”
 
-            請直接用「是」或「否」回答，不要加其他文字。
+            Please reply with only “Yes” or “No,” without adding any additional text.
 
-            以下是文字內容：
+            Below is the text:
             {reels_content}
             """
     print("📡 呼叫 Gemini 進行食物分類判斷...")
@@ -425,7 +426,7 @@ def user_setups_are_all_set(user_id: str, message_text: str | None) -> bool:
 
 def let_user_change_tone(user_id: str) -> None:
     get_user_data(user_id=user_id).is_tone_selected = False
-    message_to_ig = "請問你希望我之後用哪一種語氣回覆呢🤖？\n\n請選擇：" + "、".join(map(get_reply, VALID_TONES))
+    message_to_ig = "Which tone would you like me to use in future replies 🤖? \n\nPlease choose:" + "、".join(map(get_reply, VALID_TONES))
     send_ig_quick_reply(user_id, message_to_ig, VALID_TONES + ["WANT_TO_END_DIALOG"])
 
 
@@ -435,7 +436,7 @@ def change_tone(user_id: str, tone_type: str) -> None:
         user = get_user_data(user_id=user_id)
         user.tone_type = tone_type
         user.is_tone_selected = True
-        print_status(user_id=user_id, line=f"✅ 使用者已選語氣：{user.tone_type}")
+        print_status(user_id=user_id, line=f"✅ User-selected tone:{user.tone_type}")
 
     else:
         print_status(user_id=user_id, line=f"⚠️ERROR: Unexpected error when changing tone!")
@@ -487,8 +488,7 @@ def webhook():
                                     message_text = attachment["payload"].get("title", "(沒有標題)")
 
                                     if not is_food_related(message_text):
-                                        text = ("抱歉😅！\n\n這個 Reels 我初步判斷好像不是美食相關的內容🍽️，所以我無法讀取店家資訊\n\n如果這的確是美食相關的 "
-                                                "Reels，請點選【這是美食 Reels】的按鈕，我就馬上幫你找店家資訊！🏃‍♂️💨")
+                                        text = ("Sorry 😅！\n\nBased on my initial judgment, this Reels doesn’t seem to be food-related 🍽️, so I’m unable to retrieve store information.\n\nIf this is actually a food-related Reels, please click the button 【This is a food Reels】 and I’ll immediately help you find the store information! 🏃‍♂️💨")
                                         create_or_update_user_and_reel(sender_id, reels_content=message_text)
                                         send_ig_quick_reply(sender_id, text,
                                                             ["FORCE_TREAT_AS_FOOD", "WANT_TO_END_DIALOG"])
@@ -514,7 +514,7 @@ def webhook():
                                             let_user_change_tone(user_id=sender_id)
 
                                 else:
-                                    reply_text = "⚠️抱歉，目前我無法處理 IG 貼文或其他非屬性是 Reels 的內容喔～請試試看傳給我別的內容，我會努力找找看！📹💬"
+                                    reply_text = "⚠️Sorry, I’m currently unable to process IG posts or any content that isn’t a Reels～ Please try sending me another piece of content, and I’ll do my best to look it up for you! 📹💬"
                                     send_ig_message(recipient_id=sender_id, reply_text=reply_text)
 
                         # User respond a quick reply
@@ -530,11 +530,11 @@ def webhook():
                             message_text = messaging_event["message"]["text"]
                             reply_text = plain_text_flow(recipient_id=sender_id, message_text=message_text)
                             send_ig_message(recipient_id=sender_id, reply_text=reply_text)
-                            send_ig_message(recipient_id=sender_id, reply_text="請重新發送Reels以開始對話")
+                            send_ig_message(recipient_id=sender_id, reply_text="Please resend the Reels to start the conversation.")
 
                         # Unexpected messaging_event (not reels, not posts, not plain text)
                         else:
-                            reply_text = "⚠️無法辨識的訊息種類"
+                            reply_text = "⚠️ Unrecognized message type"
                             send_ig_message(recipient_id=sender_id, reply_text=reply_text)
 
                     return "OK", 200
