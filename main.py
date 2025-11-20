@@ -162,11 +162,12 @@ def delete_user_reel(user_id: str) -> None:
 
 
 # Gemini 分析地點功能
-# Gemini 分析地點功能
 def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
     """
-        This function using Gemini to analyze the reels_content
-        and reply, asking if it fetches the correct place info.
+    使用 Gemini 分析 Reels 內容，提取店名與地址。
+    Returns:
+        store_name (str): 純店名，用於後續邏輯或儲存
+        message_to_ig (str): 顯示給使用者的完整訊息 (包含店名與地址確認)
     """
 
     def location_info_from_gemini(prmpt: str) -> str:
@@ -174,39 +175,66 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
         response = model_location.generate_content(prmpt)
         return response.text.strip()
 
-    # 修正後的 Prompt
+    # 1. 修改 Prompt：要求同時輸出 Name 和 Address
     prompt = f"""
     You are a professional restaurant information extractor. 
-    Your task is to extract the **Restaurant Name** from the provided text.
+    Your task is to extract the **Restaurant Name** and **Address** from the provided text.
 
     **Extraction Rules:**
     1. Identify the specific name of the restaurant, cafe, or food stall.
-    2. If the text contains a valid store name, output it using the exact format: 【Name】: Store Name Here
-    3. If NO store name is found, or if the text is not about a specific physical store, output exactly: NO_STORE_FOUND
+    2. Identify the address or general location (e.g., city, district, street) if mentioned.
+    3. If the text contains a valid store name, output using the EXACT format below.
+    4. If NO store name is found, output exactly: NO_STORE_FOUND
+
+    **Output Format:**
+    【Name】: <Store Name Here>
+    【Address】: <Address Here (write "Unknown" if not mentioned)>
 
     **Examples:**
-    - Input: "今天去了台北的鼎泰豐，小籠包超好吃！" -> Output: 【Name】: 鼎泰豐
-    - Input: "這家巷口的阿伯麵攤沒有招牌" -> Output: 【Name】: 阿伯麵攤
-    - Input: "教大家怎麼煮紅燒肉" -> Output: NO_STORE_FOUND
+    - Input: "今天去了台北信義區的鼎泰豐，在101裡面" 
+      -> Output:
+      【Name】: 鼎泰豐 101店
+      【Address】: 台北市信義區 (或完整地址)
+
+    - Input: "這家巷口的阿伯麵攤超好吃" 
+      -> Output:
+      【Name】: 阿伯麵攤
+      【Address】: Unknown
+
+    - Input: "教大家怎麼煮紅燒肉" 
+      -> Output: NO_STORE_FOUND
 
     **Constraint:**
-    Do NOT output "Yes" or "No". Only output the format above.
+    Do NOT output extra explanations. Follow the format strictly.
 
     Below is the text:
     {reels_content}
     """
     
     reply = location_info_from_gemini(prompt)
-    
-    print(f"🤖 Gemini 回應: {reply}") # 建議加上這行 debug，確認 Gemini 回什麼
+    print(f"🤖 Gemini 回應:\n{reply}") 
 
-    # Store the store name
-    # 這裡的 Regex 對應上面的 Prompt 格式
-    match = re.search(r"【Name】\s*[:：]\s*(.+)", reply)
+    # 2. 修改解析邏輯：同時抓取 Name 和 Address
+    name_match = re.search(r"【Name】\s*[:：]\s*(.+)", reply)
+    addr_match = re.search(r"【Address】\s*[:：]\s*(.+)", reply)
 
-    if match:
-        store_name = match.group(1).strip()  # 加上 strip() 去除多餘空白
-        return store_name, reply + "\n\nIs this the location you were looking for?"
+    if name_match:
+        store_name = name_match.group(1).strip()
+        
+        # 如果有抓到地址就用，沒抓到就顯示未知
+        store_address = addr_match.group(1).strip() if addr_match else "未知"
+        if store_address.lower() == "unknown":
+            store_address = "未提供詳細地址"
+
+        # 組合顯示給使用者的訊息
+        display_message = (
+            f"📍 Name: {store_name}\n"
+            f"🗺️ Address: {store_address}\n\n"
+            f"Is this the location you were looking for?"
+        )
+        
+        # 返回 (存入資料庫用的店名, 顯示給使用者的訊息)
+        return store_name, display_message
     else:
         return "NO", "Sorry, I couldn’t find any clear store information😢 If you’d like, I can try analyzing it again."
 
