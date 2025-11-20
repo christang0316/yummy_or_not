@@ -349,25 +349,30 @@ def quick_reply_flow(recipient_id, msg_payload) -> str | None:
 # 檢查 reels_content 是否與食物相關
 def is_food_related(reels_content: str) -> bool:
     prompt = f"""
-            You are a classifier specialized in detecting whether a text is related to food-related content.
+        You are a multilingual content classifier specialized in food and restaurant recommendations. You are capable of understanding English, Traditional Chinese, and Japanese.
 
-            Please determine whether the following text is NOT related to “food recommendations or introductions.”
+        Your task is to determine if the provided text is a "Food Recommendation," "Restaurant Introduction," or "Dining Spot Information."
 
-            If you detect that more than 70% of the content is not related to food recommendations or introductions, reply “No.”
+        **Analysis Logic:**
 
-            Your task is to judge whether this text was written by a food blogger sharing or introducing food.
+        1.  **Check for Store Information (High Priority):**
+            * Does the text contain business details such as Store Name, Address (住所), Phone Number (電話), Business Hours (営業時間), Prices ($, 円), or Map locations?
+            * Does it contain phrases indicating a shop visit (e.g., "XX shop", "XX店", "XX屋")?
+            * **If YES to any of the above, the answer is "Yes" immediately.** (This overrides all other rules).
 
-            If the content includes phrases about DIY tutorials or how to make something, reply “No.”
+        2.  **Check for Content Type:**
+            * Is the text written by a food blogger sharing a dining experience? -> If yes, result is "Yes".
+            * Is it a tutorial, DIY, or recipe (how to make food)? -> If yes, result is "No".
+            * Is it pure entertainment, memes, or unrelated to dining out? -> If yes, result is "No".
 
-            If the content includes memes, entertainment, or similar elements, reply “No.”
+        3.  **Language Handling:**
+            * Treat Japanese content (e.g., descriptions of taste, restaurant vibe, Japanese menu items) as valid input. Do not classify it as "No" just because it is in a foreign language.
 
-            If the content includes store names, phone numbers, business hours, or phrases like “XX shop,”
-            and if your initial judgment was “No,” change your answer to “Yes.”
+        **Final Output:**
+        Reply with only "Yes" or "No". Do not add any explanation.
 
-            Please reply with only “Yes” or “No,” without adding any additional text.
-
-            Below is the text:
-            {reels_content}
+        Below is the text:
+        {reels_content}
             """
     print("📡 呼叫 Gemini 進行食物分類判斷...")
     response = model_location.generate_content(prompt)
