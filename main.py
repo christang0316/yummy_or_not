@@ -201,7 +201,7 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
     reply = location_info_from_gemini(prompt)
 
     # Store the store name
-    match = re.search(r"【Store Name】\s*[:：]\s*(.+)", reply)
+    match = re.search(r"【Name】\s*[:：]\s*(.+)", reply)
 
     if match:
         store_name = match.group(1)  # get store name
