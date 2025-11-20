@@ -184,19 +184,30 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
         return response.text.strip()
 
     prompt = f"""
-        Please extract the location or store name from the following text.
-        Text: {reels_content}
+        You are a multilingual content classifier specialized in food and restaurant recommendations. You are capable of understanding English, Traditional Chinese, and Japanese.
 
-        Search the content for store names and addresses.
-        If no store name is found, reply with “No store name information.”
-        If no address is found, reply with “No address information.”
-        The store name should be unique. If it is a chain store, list multiple addresses as bullet points.
-        Do not over-explain. Only provide the store name and address.
-        If both the store name and the address cannot be found, reply with “Not found.”
-        Response format:
+        Your task is to determine if the provided text is a "Food Recommendation," "Restaurant Introduction," or "Dining Spot Information."
 
-        【Store Name】：(store name, unique)
-        【Address】：(address; if multiple addresses exist, list them as bullet points)
+        **Analysis Logic:**
+
+        1.  **Check for Store Information (High Priority):**
+            * Does the text contain business details such as Store Name, Address (住所), Phone Number (電話), Business Hours (営業時間), Prices ($, 円), or Map locations?
+            * Does it contain phrases indicating a shop visit (e.g., "XX shop", "XX店", "XX屋")?
+            * **If YES to any of the above, the answer is "Yes" immediately.** (This overrides all other rules).
+
+        2.  **Check for Content Type:**
+            * Is the text written by a food blogger sharing a dining experience? -> If yes, result is "Yes".
+            * Is it a tutorial, DIY, or recipe (how to make food)? -> If yes, result is "No".
+            * Is it pure entertainment, memes, or unrelated to dining out? -> If yes, result is "No".
+
+        3.  **Language Handling:**
+            * Treat Japanese content (e.g., descriptions of taste, restaurant vibe, Japanese menu items) as valid input. Do not classify it as "No" just because it is in a foreign language.
+
+        **Final Output:**
+        Reply with only "Yes" or "No". Do not add any explanation.
+
+        Below is the text:
+        {reels_content}
         """
     reply = location_info_from_gemini(prompt)
 
