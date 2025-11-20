@@ -162,60 +162,50 @@ def delete_user_reel(user_id: str) -> None:
 
 
 # Gemini 分析地點功能
+# Gemini 分析地點功能
 def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
     """
         This function using Gemini to analyze the reels_content
         and reply, asking if it fetches the correct place info.
-
-        :param reels_content: user's reels_content
-        :return: The Reply (answer) from Gemini and asking question.
     """
 
     def location_info_from_gemini(prmpt: str) -> str:
-        """
-            This function ask Gemini to reply the location info
-
-            :param prmpt: prompt for Gemini
-            :return: the response of Gemini
-        """
-
         print_status(line="📡 呼叫 Gemini 取得地點資訊...")
         response = model_location.generate_content(prmpt)
         return response.text.strip()
 
+    # 修正後的 Prompt
     prompt = f"""
-        You are a multilingual content classifier specialized in food and restaurant recommendations. You are capable of understanding English, Traditional Chinese, and Japanese.
+    You are a professional restaurant information extractor. 
+    Your task is to extract the **Restaurant Name** from the provided text.
 
-        Your task is to determine if the provided text is a "Food Recommendation," "Restaurant Introduction," or "Dining Spot Information."
+    **Extraction Rules:**
+    1. Identify the specific name of the restaurant, cafe, or food stall.
+    2. If the text contains a valid store name, output it using the exact format: 【Name】: Store Name Here
+    3. If NO store name is found, or if the text is not about a specific physical store, output exactly: NO_STORE_FOUND
 
-        **Analysis Logic:**
+    **Examples:**
+    - Input: "今天去了台北的鼎泰豐，小籠包超好吃！" -> Output: 【Name】: 鼎泰豐
+    - Input: "這家巷口的阿伯麵攤沒有招牌" -> Output: 【Name】: 阿伯麵攤
+    - Input: "教大家怎麼煮紅燒肉" -> Output: NO_STORE_FOUND
 
-        1.  **Check for Store Information (High Priority):**
-            * Does the text contain business details such as Store Name, Address (住所), Phone Number (電話), Business Hours (営業時間), Prices ($, 円), or Map locations?
-            * Does it contain phrases indicating a shop visit (e.g., "XX shop", "XX店", "XX屋")?
-            * **If YES to any of the above, the answer is "Yes" immediately.** (This overrides all other rules).
+    **Constraint:**
+    Do NOT output "Yes" or "No". Only output the format above.
 
-        2.  **Check for Content Type:**
-            * Is the text written by a food blogger sharing a dining experience? -> If yes, result is "Yes".
-            * Is it a tutorial, DIY, or recipe (how to make food)? -> If yes, result is "No".
-            * Is it pure entertainment, memes, or unrelated to dining out? -> If yes, result is "No".
-
-        3.  **Language Handling:**
-            * Treat Japanese content (e.g., descriptions of taste, restaurant vibe, Japanese menu items) as valid input. Do not classify it as "No" just because it is in a foreign language.
-
-        **Final Output:**
-        Reply with only "Yes" or "No". Do not add any explanation.
-
-        Below is the text:
-        {reels_content}
-        """
+    Below is the text:
+    {reels_content}
+    """
+    
     reply = location_info_from_gemini(prompt)
+    
+    print(f"🤖 Gemini 回應: {reply}") # 建議加上這行 debug，確認 Gemini 回什麼
 
     # Store the store name
+    # 這裡的 Regex 對應上面的 Prompt 格式
     match = re.search(r"【Name】\s*[:：]\s*(.+)", reply)
 
     if match:
-        store_name = match.group(1)  # get store name
+        store_name = match.group(1).strip()  # 加上 strip() 去除多餘空白
         return store_name, reply + "\n\nIs this the location you were looking for?"
     else:
         return "NO", "Sorry, I couldn’t find any clear store information😢 If you’d like, I can try analyzing it again."
