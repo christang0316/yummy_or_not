@@ -181,28 +181,23 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
     Your task is to extract the **Restaurant Name** and **Address** from the provided text.
 
     **Extraction Rules:**
-    1. Identify the specific name of the restaurant, cafe, or food stall.
-    2. Identify the address or general location (e.g., city, district, street) if mentioned.
+    1. Identify the specific name of the restaurant. Keep the original name if it helps with map search, but prefer English if available.
+    2. Identify the address. **Translate the address into English** if it is in another language.
     3. If the text contains a valid store name, output using the EXACT format below.
     4. If NO store name is found, output exactly: NO_STORE_FOUND
+    5. Language Requirement (MANDATORY)
+        - Regardless of the language of the input text (Chinese, Japanese, etc.), the final output MUST be in ENGLISH.
+        - Do not output any Chinese characters unless they are specific proper nouns (like a store name that has no English translation).
 
     **Output Format:**
     【Name】: <Store Name Here>
-    【Address】: <Address Here (write "Unknown" if not mentioned)>
+    【Address】: <Address Here (in English, write "Unknown" if not mentioned)>
 
     **Examples:**
-    - Input: "今天去了台北信義區的鼎泰豐，在101裡面" 
+    - Input: "今天去了台北信義區的鼎泰豐" 
       -> Output:
-      【Name】: 鼎泰豐 101店
-      【Address】: 台北市信義區 (或完整地址)
-
-    - Input: "這家巷口的阿伯麵攤超好吃" 
-      -> Output:
-      【Name】: 阿伯麵攤
-      【Address】: Unknown
-
-    - Input: "教大家怎麼煮紅燒肉" 
-      -> Output: NO_STORE_FOUND
+      【Name】: Din Tai Fung (Xinyi District)
+      【Address】: Xinyi District, Taipei City
 
     **Constraint:**
     Do NOT output extra explanations. Follow the format strictly.
@@ -223,15 +218,22 @@ def fetch_location_info_from_gemini(reels_content: str) -> (str, str):
         
         # 如果有抓到地址就用，沒抓到就顯示未知
         store_address = addr_match.group(1).strip() if addr_match else "未知"
-        if store_address.lower() == "unknown":
-            store_address = "未提供詳細地址"
+        if name_match:
+            store_name = name_match.group(1).strip()
+            
+            # 修改 1: 將 "未知" 改為 "Unknown"
+            store_address = addr_match.group(1).strip() if addr_match else "Unknown"
+            
+            # 修改 2: 將 "未提供詳細地址" 改為英文描述
+            if store_address.lower() == "unknown":
+                store_address = "Address details not provided"
 
-        # 組合顯示給使用者的訊息
-        display_message = (
-            f"📍 Name: {store_name}\n"
-            f"🗺️ Address: {store_address}\n\n"
-            f"Is this the location you were looking for?"
-        )
+            # 組合顯示給使用者的訊息
+            display_message = (
+                f"📍 Name: {store_name}\n"
+                f"🗺️ Address: {store_address}\n\n"
+                f"Is this the location you were looking for?"
+            )
         
         # 返回 (存入資料庫用的店名, 顯示給使用者的訊息)
         return store_name, display_message
